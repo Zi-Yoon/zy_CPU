@@ -18,19 +18,20 @@ module control_unit (
 
     always_comb begin
         // Default values
+        o_reg_read  = FALSE;
         o_reg_write = FALSE;
         o_mem_read  = FALSE;
         o_mem_write = FALSE;
         o_branch    = FALSE;
         o_jump      = FALSE;
-        o_alu_op    = FALSE;
-        o_imm_sel   = FALSE;
+        o_alu_op    = 5'b00000;
+        o_imm_sel   = 4'b0000;
 
         case(i_opcode)
             // ------------------------- R-type -------------------------
             7'b0110011: begin // R-type
                 o_reg_write = TRUE; // Write Register
-                case({i_funct3, i_funct7})
+                case({i_funct7, i_funct3})
                     {7'b0000000, 3'b000}: o_alu_op = ALU_ADD; // ADD
                     {7'b0100000, 3'b000}: o_alu_op = ALU_SUB; // SUB
                     {7'b0000000, 3'b111}: o_alu_op = ALU_AND; // AND
@@ -76,14 +77,13 @@ module control_unit (
             7'b1100011: begin
                 o_branch    = TRUE;    // Branch
                 o_imm_sel   = IMM_B;   // B-type Immediate
-                o_alu_op    = ALU_SUB; // SUB
+                o_alu_op    = ALU_SUB; // rs1 - rs2 : compare
             end
 
             // ------------------------- U-type (LUI) -------------------
             7'b0110111: begin
                 o_reg_write = TRUE;    // Write Register
                 o_imm_sel   = IMM_U;   // U-type Immediate
-                o_alu_op    = ALU_ADD; // ADD
             end
 
             // ------------------------- U-type (AUIPC) -----------------
@@ -98,7 +98,7 @@ module control_unit (
                 o_reg_write = TRUE;    // Write Register
                 o_jump      = TRUE;    // Jump
                 o_imm_sel   = IMM_J;   //
-                o_alu_op    = ALU_ADD; //
+                o_alu_op    = ALU_ADD; // rd = pc + 4
             end
 
             // ------------------------- J-type (JALR) -------------------
@@ -106,13 +106,19 @@ module control_unit (
                 o_reg_write = TRUE;    // Write Register
                 o_jump      = TRUE;    // Jump
                 o_imm_sel   = IMM_I;   //
-                o_alu_op    = ALU_ADD; //
+                o_alu_op    = ALU_ADD; // rd = pc + 4
             end
 
             default: begin
-
+                o_reg_read  = FALSE;
+                o_reg_write = FALSE;
+                o_mem_read  = FALSE;
+                o_mem_write = FALSE;
+                o_branch    = FALSE;
+                o_jump      = FALSE;
+                o_alu_op    = 5'b00000;
+                o_imm_sel   = 4'b0000;
             end
         endcase
     end
-
 endmodule

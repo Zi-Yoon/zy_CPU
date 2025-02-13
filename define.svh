@@ -13,6 +13,7 @@ parameter TRUE  = 1;
 parameter FALSE = 0;
 
 // Parameter definitions
+parameter INS_WIDTH  = 32;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 16;
 parameter CACHE_SIZE = 1024;
